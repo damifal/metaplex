@@ -1278,9 +1278,9 @@ const Congrats = (props: {
       url: `${
         window.location.origin
       }/#/art/${props.nft?.metadataAccount.toString()}`,
-      hashtags: `NFT,Crypto,${LABELS.STORE_NAME}`,
+      hashtags: `NFT,Crypto,Spendow`,
       // via: "Metaplex",
-      related: `${LABELS.STORE_NAME},Solana`,
+      related: `Spendow,Solana`,
     };
     const queryParams = new URLSearchParams(params).toString();
     return `https://twitter.com/intent/tweet?${queryParams}`;

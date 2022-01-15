@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{LABELS.PARENT_BRAND_NAME} NFT Marketplace</title>
+        <title>{LABELS.STORE_NAME} NFT Marketplace</title>
       </Head>
       <div id="root">
         <Component {...pageProps} />

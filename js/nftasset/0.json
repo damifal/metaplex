@@ -1,0 +1,16 @@
+{
+  "name": "Number #0001",
+  "symbol": "SDG",
+  "description": "Collection of SDGs on the blockchain. This is the number 1/17.",
+  "seller_fee_basis_points": 500,
+  "image": "0.png",
+  "attributes": [
+      {"trait_type": "Layer-1", "value": "0"},
+      {"trait_type": "Layer-2", "value": "0"}
+  ],
+  "properties": {
+      "creators": [{"address": "Aqdmu82pgmpAxJsXZurmbehf7jpdzK9rpzwTpR4N1sbZ", "share": 100}],
+      "files": [{"uri": "0.png", "type": "image/png"}]
+  },
+  "collection": {"name": "SDGs", "family": "SDGs"}
+}
