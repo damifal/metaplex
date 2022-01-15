@@ -1,5 +1,6 @@
 export const LABELS = {
-  STORE_NAME: 'Metaplex',
+  STORE_NAME: 'Spendow NFT Store',
+  PARENT_BRAND_NAME: 'Spendow',
   CONNECT_LABEL: 'Connect Wallet',
   GIVE_SOL: 'Give me SOL',
   FAUCET_INFO:

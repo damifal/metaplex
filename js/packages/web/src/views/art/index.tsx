@@ -97,6 +97,7 @@ export const ArtView = () => {
               active={true}
               allowMeshRender={true}
               artView={true}
+              uri={art.uri}
             />
           </Col>
           {/* <Divider /> */}

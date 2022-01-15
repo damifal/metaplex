@@ -62,6 +62,7 @@ import { useTokenList } from '../../contexts/tokenList';
 import { mintTo } from '@project-serum/serum/lib/token-instructions';
 import { TokenInfo } from '@solana/spl-token-registry'
 import { FundsIssueModal } from "../../components/FundsIssueModal";
+import { LABELS } from '../../constants';
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -2055,7 +2056,7 @@ const WaitingStep = (props: {
     >
       <Progress type="circle" percent={progress} />
       <div className="waiting-title">
-        Your creation is being listed with Metaplex...
+        Your creation is being listed with {LABELS.PARENT_BRAND_NAME}...
       </div>
       <div className="waiting-subtitle">This can take up to 30 seconds.</div>
     </div>
@@ -2073,13 +2074,13 @@ const Congrats = (props: {
 
   const newTweetURL = () => {
     const params = {
-      text: "I've created a new NFT auction on Metaplex, check it out!",
+      text: `I just created a new NFT auction on ${LABELS.PARENT_BRAND_NAME}, check it out!`,
       url: `${
         window.location.origin
       }/#/auction/${props.auction?.auction.toString()}`,
       hashtags: 'NFT,Crypto,Metaplex',
       // via: "Metaplex",
-      related: 'Metaplex,Solana',
+      related: `${LABELS.PARENT_BRAND_NAME},Solana`,
     };
     const queryParams = new URLSearchParams(params).toString();
     return `https://twitter.com/intent/tweet?${queryParams}`;

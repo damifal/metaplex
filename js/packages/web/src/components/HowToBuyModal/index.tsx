@@ -21,7 +21,7 @@ export const HowToBuyModal: React.FC<HowToBuyModalProps> = ({
         {
           title: 'Create a SOL wallet',
           imgSrc: '/modals/how-to-buy-1.svg',
-          description: `SOL is the cryptocurrency we use for purchases on ${LABELS.STORE_NAME}. To keep your SOL safe, you’ll need a crypto wallet—we recommend using one called Phantom. Just head to Phantom’s site, install the Chrome extension, and create an account.`,
+          description: `SOL is the cryptocurrency we use for purchases on ${LABELS.STORE_NAME}. To keep your SOL safe, you’ll need a crypto wallet—we recommend using one called Phantom. Just head to Phantom’s site (https://phantom.app/), install the Chrome extension, and create an account.`,
         },
         {
           title: 'Add funds to your wallet',
