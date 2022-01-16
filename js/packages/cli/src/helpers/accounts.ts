@@ -33,7 +33,6 @@ import { web3 } from '@project-serum/anchor';
 import log from 'loglevel';
 import { AccountLayout, u64 } from '@solana/spl-token';
 import { getCluster } from './various';
-
 export type AccountAndPubkey = {
   pubkey: string;
   account: AccountInfo<Buffer>;
@@ -257,6 +256,15 @@ export const getCandyMachineAddress = async (
   return await anchor.web3.PublicKey.findProgramAddress(
     [Buffer.from(CANDY_MACHINE), config.toBuffer(), Buffer.from(uuid)],
     CANDY_MACHINE_PROGRAM_ID,
+  );
+};
+
+export const deriveCandyMachineV2ProgramAddress = async (
+  candyMachineId: anchor.web3.PublicKey,
+): Promise<[PublicKey, number]> => {
+  return await PublicKey.findProgramAddress(
+    [Buffer.from(CANDY_MACHINE), candyMachineId.toBuffer()],
+    CANDY_MACHINE_PROGRAM_V2_ID,
   );
 };
 
