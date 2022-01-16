@@ -48,7 +48,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import { useTokenList } from '../../contexts/tokenList';
-import { LABELS } from '../../constants';
+import { LABELS } from './../../constants';
 
 
 const { Step } = Steps;

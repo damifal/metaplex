@@ -15,7 +15,7 @@ import {
   Checkbox,
 } from 'antd';
 import { ArtCard } from './../../components/ArtCard';
-import { MINIMUM_SAFE_FEE_AUCTION_CREATION, QUOTE_MINT } from './../../constants';
+import { MINIMUM_SAFE_FEE_AUCTION_CREATION, QUOTE_MINT,LABELS } from './../../constants';
 import { Confetti } from './../../components/Confetti';
 import { ArtSelector } from './artSelector';
 import {
@@ -60,9 +60,8 @@ import { SystemProgram } from '@solana/web3.js';
 import TokenDialog, { TokenButton } from '../../components/TokenDialog';
 import { useTokenList } from '../../contexts/tokenList';
 import { mintTo } from '@project-serum/serum/lib/token-instructions';
-import { TokenInfo } from '@solana/spl-token-registry';
+import { TokenInfo } from '@solana/spl-token-registry'
 import { FundsIssueModal } from "../../components/FundsIssueModal";
-import { LABELS } from '../../constants';
 
 const { Option } = Select;
 const { Step } = Steps;
