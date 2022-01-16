@@ -2080,7 +2080,7 @@ const Congrats = (props: {
       }/#/auction/${props.auction?.auction.toString()}`,
       hashtags: 'NFT,Crypto,Metaplex',
       // via: "Metaplex",
-      related: "Spendow,Solana",
+      related: 'Spendow,Solana',
     };
     const queryParams = new URLSearchParams(params).toString();
     return `https://twitter.com/intent/tweet?${queryParams}`;
