@@ -1274,13 +1274,13 @@ const Congrats = (props: {
 
   const newTweetURL = () => {
     const params = {
-      text: `I created a new NFT artwork on ${LABELS.STORE_NAME}, check it out!`,
+      text: "I created a new NFT artwork on Spendow, check it out!",
       url: `${
         window.location.origin
       }/#/art/${props.nft?.metadataAccount.toString()}`,
-      hashtags: `NFT,Crypto,Spendow`,
+      hashtags: "NFT,Crypto,Spendow",
       // via: "Metaplex",
-      related: `Spendow,Solana`,
+      related: "Spendow,Solana",
     };
     const queryParams = new URLSearchParams(params).toString();
     return `https://twitter.com/intent/tweet?${queryParams}`;

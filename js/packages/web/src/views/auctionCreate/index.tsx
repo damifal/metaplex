@@ -60,7 +60,7 @@ import { SystemProgram } from '@solana/web3.js';
 import TokenDialog, { TokenButton } from '../../components/TokenDialog';
 import { useTokenList } from '../../contexts/tokenList';
 import { mintTo } from '@project-serum/serum/lib/token-instructions';
-import { TokenInfo } from '@solana/spl-token-registry'
+import { TokenInfo } from '@solana/spl-token-registry';
 import { FundsIssueModal } from "../../components/FundsIssueModal";
 import { LABELS } from '../../constants';
 
@@ -2074,13 +2074,13 @@ const Congrats = (props: {
 
   const newTweetURL = () => {
     const params = {
-      text: `I just created a new NFT auction on Spendow, check it out!`,
+      text: "I just created a new NFT auction on Spendow, check it out!",
       url: `${
         window.location.origin
       }/#/auction/${props.auction?.auction.toString()}`,
       hashtags: 'NFT,Crypto,Metaplex',
       // via: "Metaplex",
-      related: `Spendow,Solana`,
+      related: "Spendow,Solana",
     };
     const queryParams = new URLSearchParams(params).toString();
     return `https://twitter.com/intent/tweet?${queryParams}`;
