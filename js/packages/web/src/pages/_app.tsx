@@ -1,6 +1,5 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import { LABELS } from '../constants';
 
 import '../styles/index.less';
 
@@ -9,7 +8,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{LABELS.STORE_NAME} NFT Marketplace</title>
+        <title>Spendow NFT Marketplace</title>
       </Head>
       <div id="root">
         <Component {...pageProps} />

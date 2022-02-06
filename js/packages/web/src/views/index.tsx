@@ -1,6 +1,7 @@
 export { HomeView } from './home';
 export { ArtView } from './art';
 export { ArtCreateView } from './artCreate';
+export { ArtCreateCollectionView } from './artCreateCollection';
 export { ArtistView } from './artist';
 export { ArtistsView } from './artists';
 export { AuctionView } from './auction';
@@ -8,3 +9,6 @@ export { AuctionCreateView } from './auctionCreate';
 export { ArtworksView } from './artworks';
 export { AnalyticsView } from './analytics';
 export { StaticPageView } from './staticPage';
+export { AdminView } from './admin';
+export { default } from './pack';
+export { PackCreateView } from './packCreate';

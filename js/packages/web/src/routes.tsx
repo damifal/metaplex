@@ -4,6 +4,7 @@ import { Providers } from './providers';
 import {
   AnalyticsView,
   ArtCreateView,
+  ArtCreateCollectionView,
   ArtistsView,
   ArtistView,
   ArtView,
@@ -20,6 +21,8 @@ import { BillingView } from './views/auction/billing';
 
 export function Routes() {
   const shouldEnableNftPacks = process.env.NEXT_ENABLE_NFT_PACKS === 'true';
+  console.log(process.env.NEXT_ENABLE_NFT_PACKS);
+  console.log(shouldEnableNftPacks);
   return (
     <>
       <HashRouter basename={'/'}>
@@ -49,6 +52,11 @@ export function Routes() {
               exact
               path="/art/create/:step_param?"
               component={() => <ArtCreateView />}
+            />
+             <Route
+              exact
+              path="/art/create/collection/:step_param?"
+              component={() => <ArtCreateCollectionView />}
             />
             <Route
               exact
