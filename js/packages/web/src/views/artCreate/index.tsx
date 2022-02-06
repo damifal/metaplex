@@ -243,10 +243,12 @@ const CategoryStep = (props: {
     <>
       <Row className="call-to-action">
         <h3><Link to={`/art/create/collection/0`}>Create a collection</Link></h3>
-        <h2>Create a new item</h2>
-        <p> 
+        <h2>Create a new item</h2>v
+        <p>
           First time creating on {LABELS.STORE_NAME}?{' '}
-          <a href="https://docs.metaplex.com/create-store/sell" target="_blank" rel="noreferrer">Read our creators’ guide.</a> 
+          <a href="https://docs.metaplex.com/storefront/create" target="_blank" rel="noreferrer">
+            Read our creators’ guide.
+          </a>
         </p>
       </Row>
       <Row justify={width < 768 ? 'center' : 'start'}>
@@ -739,18 +741,16 @@ const InfoStep = (props: {
             <Form.List name="attributes">
               {(fields, { add, remove }) => (
                 <>
-                  {fields.map(({ key, name, fieldKey }) => (
+                  {fields.map(({ key, name }) => (
                     <Space key={key} align="baseline">
                       <Form.Item
                         name={[name, 'trait_type']}
-                        fieldKey={[fieldKey, 'trait_type']}
                         hasFeedback
                       >
                         <Input placeholder="trait_type (Optional)" />
                       </Form.Item>
                       <Form.Item
                         name={[name, 'value']}
-                        fieldKey={[fieldKey, 'value']}
                         rules={[{ required: true, message: 'Missing value' }]}
                         hasFeedback
                       >
@@ -758,7 +758,6 @@ const InfoStep = (props: {
                       </Form.Item>
                       <Form.Item
                         name={[name, 'display_type']}
-                        fieldKey={[fieldKey, 'display_type']}
                         hasFeedback
                       >
                         <Input placeholder="display_type (Optional)" />
