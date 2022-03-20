@@ -15,6 +15,7 @@ import {
   Typography,
   Space,
   Card,
+  Checkbox,
 } from 'antd';
 import { ArtCard } from './../../components/ArtCard';
 import { UserSearch, UserValue } from './../../components/UserSearch';
@@ -40,7 +41,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
 import { MintLayout } from '@solana/spl-token';
 import { useHistory, useParams } from 'react-router-dom';
-import { cleanName, getLast } from '../../utils/utils';
+import { getLast } from '../../utils/utils';
 import { AmountLabel } from '../../components/AmountLabel';
 import useWindowDimensions from '../../utils/layout';
 import {
@@ -51,6 +52,8 @@ import {
 import { useTokenList } from '../../contexts/tokenList';
 import { LABELS } from './../../constants';
 
+import { SafetyDepositDraft } from '../../actions/createAuctionManager';
+import { ArtSelector } from '../auctionCreate/artSelector';
 
 const { Step } = Steps;
 const { Dragger } = Upload;
@@ -69,12 +72,15 @@ export const ArtCreateView = () => {
   const [step, setStep] = useState<number>(0);
   const [stepsVisible, setStepsVisible] = useState<boolean>(true);
   const [isMinting, setMinting] = useState<boolean>(false);
-  const [nft, setNft] =
-    useState<{ metadataAccount: StringPublicKey } | undefined>(undefined);
+  const [nft, setNft] = useState<
+    { metadataAccount: StringPublicKey } | undefined
+  >(undefined);
   const [files, setFiles] = useState<File[]>([]);
+  const [isCollection, setIsCollection] = useState<boolean>(false);
   const [attributes, setAttributes] = useState<IMetadataExtension>({
     name: '',
     symbol: '',
+    collection: '',
     description: '',
     external_url: '',
     image: '',
@@ -107,6 +113,7 @@ export const ArtCreateView = () => {
       name: attributes.name,
       symbol: attributes.symbol,
       creators: attributes.creators,
+      collection: attributes.collection,
       description: attributes.description,
       sellerFeeBasisPoints: attributes.seller_fee_basis_points,
       image: attributes.image,
@@ -194,6 +201,8 @@ export const ArtCreateView = () => {
             <InfoStep
               attributes={attributes}
               files={files}
+              isCollection={isCollection}
+              setIsCollection={setIsCollection}
               setAttributes={setAttributes}
               confirm={() => gotoStep(3)}
             />
@@ -389,7 +398,7 @@ const UploadStep = (props: {
   return (
     <>
       <Row className="call-to-action">
-        <h2>Now, let's upload your creation</h2>
+        <h2>Now, let&apos;s upload your creation</h2>
         <p style={{ fontSize: '1.2rem' }}>
           Your file will be uploaded to the decentralized web via Arweave.
           Depending on file type, can take up to 1 minute. Arweave is a new type
@@ -557,8 +566,11 @@ const UploadStep = (props: {
                   : mainFile && mainFile.name,
             });
             const url = await fetch(customURL).then(res => res.blob());
-            const files = [coverFile, mainFile, customURL ? new File([url], customURL) : '']
-              .filter(f => f) as File[];
+            const files = [
+              coverFile,
+              mainFile,
+              customURL ? new File([url], customURL) : '',
+            ].filter(f => f) as File[];
 
             props.setFiles(files);
             props.confirm();
@@ -624,25 +636,33 @@ const useArtworkFiles = (files: File[], attributes: IMetadataExtension) => {
 const InfoStep = (props: {
   attributes: IMetadataExtension;
   files: File[];
+  isCollection: boolean;
+  setIsCollection: (val: boolean) => void;
   setAttributes: (attr: IMetadataExtension) => void;
   confirm: () => void;
 }) => {
-  const [creators, setCreators] = useState<Array<UserValue>>([]);
-  const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
-  const { image, animation_url } = useArtworkFiles(
-    props.files,
-    props.attributes,
-  );
+  const { image } = useArtworkFiles(props.files, props.attributes);
   const [form] = Form.useForm();
+  const { isCollection, setIsCollection } = props;
+  const [selectedCollection, setSelectedCollection] = useState<
+    Array<SafetyDepositDraft>
+  >([]);
+
+  const artistFilter = useCallback(
+    (i: SafetyDepositDraft) =>
+      !(i.metadata.info.data.creators || []).some((c: Creator) => !c.verified),
+    [],
+  );
 
   useEffect(() => {
-    setRoyalties(
-      creators.map(creator => ({
-        creatorKey: creator.key,
-        amount: Math.trunc(100 / creators.length),
-      })),
-    );
-  }, [creators]);
+    if (selectedCollection.length) {
+      props.setAttributes({
+        ...props.attributes,
+        collection: selectedCollection[0].metadata.info.mint,
+      });
+    }
+  }, [selectedCollection]);
+
   return (
     <>
       <Row className="call-to-action">
@@ -701,7 +721,32 @@ const InfoStep = (props: {
               }
             />
           </label>
-
+          <label className="action-field direction-row">
+            <Checkbox
+              checked={isCollection}
+              onChange={val => {
+                setIsCollection(val.target.checked);
+              }}
+            />
+            <span className="field-title" style={{ marginLeft: '10px' }}>
+              Is parent collection?
+            </span>
+          </label>
+          {!isCollection && (
+            <label className="action-field">
+              <span className="field-title">Collection</span>
+              <ArtSelector
+                filter={artistFilter}
+                selected={selectedCollection}
+                setSelected={items => {
+                  setSelectedCollection(items);
+                }}
+                allowMultiple={false}
+              >
+                Select NFT
+              </ArtSelector>
+            </label>
+          )}
           <label className="action-field">
             <span className="field-title">Description</span>
             <Input.TextArea
@@ -720,19 +765,24 @@ const InfoStep = (props: {
           </label>
           <label className="action-field">
             <span className="field-title">Maximum Supply</span>
-            <InputNumber
-              placeholder="Quantity"
-              onChange={(val: number) => {
-                props.setAttributes({
-                  ...props.attributes,
-                  properties: {
-                    ...props.attributes.properties,
-                    maxSupply: val,
-                  },
-                });
-              }}
-              className="royalties-input"
-            />
+            {!isCollection ? (
+              <InputNumber
+                placeholder="Quantity"
+                value={props.attributes.properties.maxSupply}
+                onChange={(val: number) => {
+                  props.setAttributes({
+                    ...props.attributes,
+                    properties: {
+                      ...props.attributes.properties,
+                      maxSupply: val,
+                    },
+                  });
+                }}
+                className="royalties-input"
+              />
+            ) : (
+              0
+            )}
           </label>
           <label className="action-field">
             <span className="field-title">Attributes</span>
@@ -743,10 +793,7 @@ const InfoStep = (props: {
                 <>
                   {fields.map(({ key, name }) => (
                     <Space key={key} align="baseline">
-                      <Form.Item
-                        name={[name, 'trait_type']}
-                        hasFeedback
-                      >
+                      <Form.Item name={[name, 'trait_type']} hasFeedback>
                         <Input placeholder="trait_type (Optional)" />
                       </Form.Item>
                       <Form.Item
@@ -756,10 +803,7 @@ const InfoStep = (props: {
                       >
                         <Input placeholder="value" />
                       </Form.Item>
-                      <Form.Item
-                        name={[name, 'display_type']}
-                        hasFeedback
-                      >
+                      <Form.Item name={[name, 'display_type']} hasFeedback>
                         <Input placeholder="display_type (Optional)" />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />
@@ -1083,10 +1127,7 @@ const LaunchStep = (props: {
   connection: Connection;
 }) => {
   const [cost, setCost] = useState(0);
-  const { image, animation_url } = useArtworkFiles(
-    props.files,
-    props.attributes,
-  );
+  const { image } = useArtworkFiles(props.files, props.attributes);
   const files = props.files;
   const metadata = props.attributes;
   useEffect(() => {
@@ -1293,7 +1334,7 @@ const Congrats = (props: {
       <>
         <div className="waiting-title">Sorry, there was an error!</div>
         <p>{props.alert}</p>
-        <Button onClick={_ => history.push('/art/create')}>
+        <Button onClick={() => history.push('/art/create')}>
           Back to Create NFT
         </Button>
       </>
@@ -1306,14 +1347,14 @@ const Congrats = (props: {
       <div className="congrats-button-container">
         <Button
           className="metaplex-button"
-          onClick={_ => window.open(newTweetURL(), '_blank')}
+          onClick={() => window.open(newTweetURL(), '_blank')}
         >
           <span>Share it on Twitter</span>
           <span>&gt;</span>
         </Button>
         <Button
           className="metaplex-button"
-          onClick={_ =>
+          onClick={() =>
             history.push(`/art/${props.nft?.metadataAccount.toString()}`)
           }
         >
@@ -1322,7 +1363,7 @@ const Congrats = (props: {
         </Button>
         <Button
           className="metaplex-button"
-          onClick={_ => history.push('/auction/create')}
+          onClick={() => history.push('/auction/create')}
         >
           <span>Sell it via auction</span>
           <span>&gt;</span>
