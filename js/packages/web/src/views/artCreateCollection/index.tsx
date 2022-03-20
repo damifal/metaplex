@@ -77,6 +77,7 @@ export const ArtCreateCollectionView = () => {
     Description: '',
     Email: '',
     Image: '', 
+    ImageUrl: '',
     Attributes: undefined,
     OwnerAddress: '',
     UrlHandle: '',
@@ -109,11 +110,32 @@ export const ArtCreateCollectionView = () => {
     setMinting(true);
     attributes.OwnerAddress = publicKey? publicKey.toString() : '';
     //attributes.Image = files?.[0];
-
+let data = {
+  "Name": "test nameer",
+  "Description": "sdfcwe jkenr dfewidj. kwejed wde wdewrert reotiuerw erwrfwe",
+  "Email": "dami@gmail.com",
+  "Image": "",
+  "OwnerAddress": "Aqdmu82pgmpAxJsXZurmbehf7jpdzK9rpzwTpR4N1sbZ",
+  "UrlHandle": "wwerweou",
+  "Twitter": "uoouoop",
+  "Telegram": "woeurewoe",
+  "Discord": "wereoiwere",
+  "Website": "google.com",
+  "TotalVolume": 0,
+  "Total": 220,
+  "SellerFeeBasisPoints": 1000,
+  "Creators": [
+    {
+      "address": "Aqdmu82pgmpAxJsXZurmbehf7jpdzK9rpzwTpR4N1sbZ",
+      "verified": true,
+      "share": 100
+    }
+  ]
+};
     fetch('https://www.spendow.com/solapi/createCollection',  {
       method: 'POST',
       headers: {
-        'Accept': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(attributes)
     }).then((res) => res.json())
@@ -231,7 +253,7 @@ export const ArtCreateCollectionView = () => {
         </Col>
       </Row>
       <MetaplexOverlay visible={step === 3}>
-        <Congrats nft={nft} alert={alertMessage} />
+        <Congrats nft={nft} urlHandle={attributes.UrlHandle} alert={alertMessage} />
       </MetaplexOverlay>
     </>
   );
@@ -258,6 +280,8 @@ const BasicStep = (props: {
   );
   const [form] = Form.useForm();
 
+  const isShowUrlErrors = false;
+
   useEffect(() => {
     setRoyalties(
       creators.map(creator => ({
@@ -266,6 +290,38 @@ const BasicStep = (props: {
       })),
     );
   }, [creators]);
+
+  let urlHandleTimer;
+
+  const checkUrlHandle = (e) => {
+    const urlhandle = e.target.value;
+    // Clears running timer and starts a new one each time the user types
+    clearTimeout(urlHandleTimer);
+    urlHandleTimer = setTimeout(() => {
+        fetch('https://www.spendow.com/solapi/checkurlcode?urlCode='+urlhandle,  {
+        method: 'GET'
+      }).then((res) => res.json())
+      .then(response => {
+        //var input = document.querySelector('input[type="file"]')
+        if (response.successCode == "unavailable") {
+          console.log("no go we no fit");
+        } else {
+          props.setAttributes({
+            ...props.attributes,
+            UrlHandle: urlhandle,
+          })
+        }
+      }).catch((error) => {
+        console.log(error);
+      })
+    }, 1000);
+ 
+    props.setAttributes({
+      ...props.attributes,
+      UrlHandle: urlhandle,
+    })
+  }
+
   return (
     <>
       <Row className="call-to-action">
@@ -313,11 +369,14 @@ const BasicStep = (props: {
 
           <label className="action-field">
             <span className="field-title">Email Address of Owner</span>
+             
             <Input
               autoFocus
               className="input"
               placeholder="Max 50 characters"
               maxLength={50}
+              type="email"
+              required={true}
               allowClear
               value={props.attributes.Email}
               onChange={info =>
@@ -337,13 +396,22 @@ const BasicStep = (props: {
               maxLength={100}
               allowClear
               value={props.attributes.UrlHandle}
-              onChange={info =>
+              /*onChange={info =>
+                checkUrlHandle(info.target.value)
                 props.setAttributes({
                   ...props.attributes,
                   UrlHandle: info.target.value,
                 })
-              }
+              }*/
+              onChange={checkUrlHandle}
             />
+            {isShowUrlErrors && (
+              <Row>
+                <Text type="danger" style={{ paddingBottom: 14 }}>
+                  This URL Handle is already taken
+                </Text>
+              </Row>
+            )}
           </label>
           <label className="action-field">
             <span className="field-title">Twitter</span>
@@ -426,7 +494,7 @@ const BasicStep = (props: {
             />
           </label>
 
-          <label className="action-field">
+          <Row className="action-field">
             <span className="field-title">Upload a cover image (PNG, JPG, GIF, SVG)</span>
             <Dragger
               accept=".png,.jpg,.gif,.mp4,.svg"
@@ -442,12 +510,10 @@ const BasicStep = (props: {
               }}
               fileList={coverFile ? [coverFile as any] : []}
               onChange={async info => {
-                const file = info.file.originFileObj;
-
+                const file = info.file.originFileObj; 
                 if (!file) {
                   return;
-                }
-console.log(file);
+                } 
                 const sizeKB = file.size / 1024;
 
                 if (sizeKB < 25) {
@@ -476,7 +542,7 @@ console.log(file);
                 </p>
               )}
             </Dragger>
-          </label> 
+          </Row> 
         </Col>
       </Row>
 
@@ -501,349 +567,13 @@ console.log(file);
               });
 
               const files = [coverFile, mainFile].filter(f => f) as File[]; 
-              props.setFiles(files);
-
+              props.setFiles(files); 
               props.confirm();
             });
           }}
           className="action-btn"
         >
           Continue to royalties
-        </Button>
-      </Row>
-    </>
-  );
-};
-
-const CategoryStep = (props: {
-  confirm: (category: MetadataCategory) => void;
-}) => {
-  const { width } = useWindowDimensions();
-  return (
-    <>
-      <Row className="call-to-action">
-        <h2>Create a new item</h2>
-        <p> 
-          First time creating a colllection on {LABELS.STORE_NAME}?{' '}
-          <a href="https://docs.metaplex.com/create-store/sell" target="_blank" rel="noreferrer">Read our creators’ guide.</a> 
-        </p>
-      </Row>
-      <Row justify={width < 768 ? 'center' : 'start'}>
-        <Col>
-          <Row>
-            <Button
-              className="type-btn"
-              size="large"
-              onClick={() => props.confirm(MetadataCategory.Image)}
-            >
-              <div>
-                <div>Image</div>
-                <div className="type-btn-description">JPG, PNG, GIF</div>
-              </div>
-            </Button>
-          </Row>
-          <Row>
-            <Button
-              className="type-btn"
-              size="large"
-              onClick={() => props.confirm(MetadataCategory.Video)}
-            >
-              <div>
-                <div>Video</div>
-                <div className="type-btn-description">MP4, MOV</div>
-              </div>
-            </Button>
-          </Row>
-          <Row>
-            <Button
-              className="type-btn"
-              size="large"
-              onClick={() => props.confirm(MetadataCategory.Audio)}
-            >
-              <div>
-                <div>Audio</div>
-                <div className="type-btn-description">MP3, WAV, FLAC</div>
-              </div>
-            </Button>
-          </Row>
-          <Row>
-            <Button
-              className="type-btn"
-              size="large"
-              onClick={() => props.confirm(MetadataCategory.VR)}
-            >
-              <div>
-                <div>AR/3D</div>
-                <div className="type-btn-description">GLB</div>
-              </div>
-            </Button>
-          </Row>
-          <Row>
-            <Button
-              className="type-btn"
-              size="large"
-              onClick={() => props.confirm(MetadataCategory.HTML)}
-            >
-              <div>
-                <div>HTML Asset</div>
-                <div className="type-btn-description">HTML</div>
-              </div>
-            </Button>
-          </Row>
-        </Col>
-      </Row>
-    </>
-  );
-};
-
-const UploadStep = (props: {
-  attributes: IMetadataExtension;
-  setAttributes: (attr: IMetadataExtension) => void;
-  files: File[];
-  setFiles: (files: File[]) => void;
-  confirm: () => void;
-}) => {
-  const [coverFile, setCoverFile] = useState<File | undefined>(
-    props.files?.[0],
-  );
-  const [mainFile, setMainFile] = useState<File | undefined>(props.files?.[1]);
-  const [coverArtError, setCoverArtError] = useState<string>();
-
-  const [customURL, setCustomURL] = useState<string>('');
-  const [customURLErr, setCustomURLErr] = useState<string>('');
-  const disableContinue = !(coverFile || (!customURLErr && !!customURL));
-
-  useEffect(() => {
-    props.setAttributes({
-      ...props.attributes,
-      properties: {
-        ...props.attributes.properties,
-        files: [],
-      },
-    });
-  }, []);
-
-  const uploadMsg = (category: MetadataCategory) => {
-    switch (category) {
-      case MetadataCategory.Audio:
-        return 'Upload your audio creation (MP3, FLAC, WAV)';
-      case MetadataCategory.Image:
-        return 'Upload your image creation (PNG, JPG, GIF)';
-      case MetadataCategory.Video:
-        return 'Upload your video creation (MP4, MOV, GLB)';
-      case MetadataCategory.VR:
-        return 'Upload your AR/VR creation (GLB)';
-      case MetadataCategory.HTML:
-        return 'Upload your HTML File (HTML)';
-      default:
-        return 'Please go back and choose a category';
-    }
-  };
-
-  const acceptableFiles = (category: MetadataCategory) => {
-    switch (category) {
-      case MetadataCategory.Audio:
-        return '.mp3,.flac,.wav';
-      case MetadataCategory.Image:
-        return '.png,.jpg,.gif';
-      case MetadataCategory.Video:
-        return '.mp4,.mov,.webm';
-      case MetadataCategory.VR:
-        return '.glb';
-      case MetadataCategory.HTML:
-        return '.html';
-      default:
-        return '';
-    }
-  };
-
-  const { category } = props.attributes.properties;
-
-  const urlPlaceholder = `http://example.com/path/to/${
-    category === MetadataCategory.Image ? 'image' : 'file'
-  }`;
-
-  return (
-    <>
-      <Row className="call-to-action">
-        <h2>Now, let's upload your creation</h2>
-        <p style={{ fontSize: '1.2rem' }}>
-          Your file will be uploaded to the decentralized web via Arweave.
-          Depending on file type, can take up to 1 minute. Arweave is a new type
-          of storage that backs data with sustainable and perpetual endowments,
-          allowing users and developers to truly store data forever – for the
-          very first time.
-        </p>
-      </Row>
-      <Row className="content-action">
-        <h3>Upload a cover image (PNG, JPG, GIF, SVG)</h3>
-        <Dragger
-          accept=".png,.jpg,.gif,.mp4,.svg"
-          style={{ padding: 20, background: 'rgba(255, 255, 255, 0.08)' }}
-          multiple={false}
-          onRemove={() => {
-            setMainFile(undefined);
-            setCoverFile(undefined);
-          }}
-          customRequest={info => {
-            // dont upload files here, handled outside of the control
-            info?.onSuccess?.({}, null as any);
-          }}
-          fileList={coverFile ? [coverFile as any] : []}
-          onChange={async info => {
-            const file = info.file.originFileObj;
-
-            if (!file) {
-              return;
-            }
-
-            const sizeKB = file.size / 1024;
-
-            if (sizeKB < 25) {
-              setCoverArtError(
-                `The file ${file.name} is too small. It is ${
-                  Math.round(10 * sizeKB) / 10
-                }KB but should be at least 25KB.`,
-              );
-              return;
-            }
-
-            setCoverFile(file);
-            setCoverArtError(undefined);
-          }}
-        >
-          <div className="ant-upload-drag-icon">
-            <h3 style={{ fontWeight: 700 }}>
-              Upload your cover image (PNG, JPG, GIF, SVG)
-            </h3>
-          </div>
-          {coverArtError ? (
-            <Text type="danger">{coverArtError}</Text>
-          ) : (
-            <p className="ant-upload-text" style={{ color: '#6d6d6d' }}>
-              Drag and drop, or click to browse
-            </p>
-          )}
-        </Dragger>
-      </Row>
-      {props.attributes.properties?.category !== MetadataCategory.Image && (
-        <Row
-          className="content-action"
-          style={{ marginBottom: 5, marginTop: 30 }}
-        >
-          <h3>{uploadMsg(props.attributes.properties?.category)}</h3>
-          <Dragger
-            accept={acceptableFiles(props.attributes.properties?.category)}
-            style={{ padding: 20, background: 'rgba(255, 255, 255, 0.08)' }}
-            multiple={false}
-            customRequest={info => {
-              // dont upload files here, handled outside of the control
-              info?.onSuccess?.({}, null as any);
-            }}
-            fileList={mainFile ? [mainFile as any] : []}
-            onChange={async info => {
-              const file = info.file.originFileObj;
-
-              // Reset image URL
-              setCustomURL('');
-              setCustomURLErr('');
-
-              if (file) setMainFile(file);
-            }}
-            onRemove={() => {
-              setMainFile(undefined);
-            }}
-          >
-            <div className="ant-upload-drag-icon">
-              <h3 style={{ fontWeight: 700 }}>Upload your creation</h3>
-            </div>
-            <p className="ant-upload-text" style={{ color: '#6d6d6d' }}>
-              Drag and drop, or click to browse
-            </p>
-          </Dragger>
-        </Row>
-      )}
-      <Form.Item
-        className={'url-form-action'}
-        style={{
-          width: '100%',
-          flexDirection: 'column',
-          paddingTop: 30,
-          marginBottom: 4,
-        }}
-        label={<h3>OR use absolute URL to content</h3>}
-        labelAlign="left"
-        colon={false}
-        validateStatus={customURLErr ? 'error' : 'success'}
-        help={customURLErr}
-      >
-        <Input
-          disabled={!!mainFile}
-          placeholder={urlPlaceholder}
-          value={customURL}
-          onChange={ev => setCustomURL(ev.target.value)}
-          onFocus={() => setCustomURLErr('')}
-          onBlur={() => {
-            if (!customURL) {
-              setCustomURLErr('');
-              return;
-            }
-
-            try {
-              // Validate URL and save
-              new URL(customURL);
-              setCustomURL(customURL);
-              setCustomURLErr('');
-            } catch (e) {
-              console.error(e);
-              setCustomURLErr('Please enter a valid absolute URL');
-            }
-          }}
-        />
-      </Form.Item>
-      <Row>
-        <Button
-          type="primary"
-          size="large"
-          disabled={disableContinue}
-          onClick={async () => {
-            props.setAttributes({
-              ...props.attributes,
-              properties: {
-                ...props.attributes.properties,
-                files: [coverFile, mainFile, customURL]
-                  .filter(f => f)
-                  .map(f => {
-                    const uri = typeof f === 'string' ? f : f?.name || '';
-                    const type =
-                      typeof f === 'string' || !f
-                        ? 'unknown'
-                        : f.type || getLast(f.name.split('.')) || 'unknown';
-
-                    return {
-                      uri,
-                      type,
-                    } as MetadataFile;
-                  }),
-              },
-              image: coverFile?.name || customURL || '',
-              animation_url:
-                props.attributes.properties?.category !==
-                  MetadataCategory.Image && customURL
-                  ? customURL
-                  : mainFile && mainFile.name,
-            });
-            const url = await fetch(customURL).then(res => res.blob());
-            const files = [coverFile, mainFile, customURL ? new File([url], customURL) : '']
-              .filter(f => f) as File[];
-
-            props.setFiles(files);
-            props.confirm();
-          }}
-          style={{ marginTop: 24 }}
-          className="action-btn"
-        >
-          Continue to Mint
         </Button>
       </Row>
     </>
@@ -1237,6 +967,7 @@ const Congrats = (props: {
     metadataAccount: StringPublicKey;
   };
   alert?: string;
+  urlHandle?: string;
 }) => {
   const history = useHistory();
 
@@ -1274,7 +1005,7 @@ const Congrats = (props: {
         <Button
           className="metaplex-button"
           onClick={_ =>
-            history.push(`/art/create/0/?collection=${props.nft?.metadataAccount.toString()}`)
+            history.push(`/collection/${props.urlHandle?.toString()}`)
           }
         >
           <span>Start adding NFTs to this collection</span>

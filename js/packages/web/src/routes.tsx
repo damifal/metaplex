@@ -9,6 +9,9 @@ import {
   ArtistView,
   ArtView,
   ArtworksView,
+  CollectionsView,
+  CollectionView,
+  CollectionAddSeedView,
   AuctionCreateView,
   AuctionView,
   HomeView,
@@ -57,6 +60,21 @@ export function Routes() {
               exact
               path="/art/create/collection/:step_param?"
               component={() => <ArtCreateCollectionView />}
+            />
+            <Route
+              exact
+              path="/collections/:id?"
+              component={() => <CollectionsView />}
+            />
+            <Route
+              exact
+              path="/collection/:urlcode?"
+              component={() => <CollectionView />}
+            />
+            <Route
+              exact
+              path="/collection/addseed/:urlcode?"
+              component={() => <CollectionAddSeedView />}
             />
             <Route
               exact

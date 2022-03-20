@@ -33,6 +33,7 @@ export interface INftCollection {
   SellerFeeBasisPoints: number;
   Attributes?: Attribute[];
   Creators: Creator[] | null;
+  ImageUrl: any;
 }
 
 export class NftCollection {
